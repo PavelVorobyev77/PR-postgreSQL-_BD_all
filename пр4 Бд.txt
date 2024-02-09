@@ -1,0 +1,13 @@
+SELECT ps.toy_name, SUM(ps.quantity_sold) AS total_quantity, SUM(ps.total_cost) AS total_sales_amount
+FROM purchase_stat ps
+WHERE sale_date >= CURRENT_DATE - INTERVAL '1 month'
+GROUP BY ps.toy_name
+ORDER BY total_quantity DESC;
+
+
+SELECT ps.toy_name, ps.children_age
+FROM purchase_stat ps
+WHERE ps.children_age = 10;
+
+SELECT * FROM purchase_stat
+WHERE sale_date = '2024-02-08';

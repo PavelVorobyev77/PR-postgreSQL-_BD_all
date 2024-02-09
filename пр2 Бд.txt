@@ -1,0 +1,34 @@
+Было
+UPDATE calculations 
+SET Y = POWER(λ, 2) * W * (COS(φ) / SQRT(1 - POWER(λ, 2) * POWER(SIN(φ) - k, 2))) + ((2.7 * POWER(10, 3)) / (POWER(λ, 2) * W))
+WHERE X = 2 AND λ = 0.000000001 AND W = 6.28;
+
+Стало
+1)UPDATE calculations 
+SET Y = POWER(λ, 2) * W * (COS(30) / SQRT(1 - POWER(λ, 2) * POWER(SIN(30) - 10, 2))) + ((2.7 * POWER(10, 3)) / (POWER(λ, 2) * W))
+WHERE X = 2 AND λ = 0.000000001 AND W = 6.28;
+
+2)UPDATE calculations 
+SET Y = POWER(λ, 2) * W * (COS(45) / SQRT(1 - POWER(λ, 2) * POWER(SIN(45) - 5, 2))) + ((2.7 * POWER(10, 3)) / (POWER(λ, 2) * W))
+WHERE X = 4 AND λ = 0.000000002 AND W = 8.28;
+
+3)UPDATE calculations 
+SET Y = POWER(λ, 2) * W * (COS(60) / SQRT(1 - POWER(λ, 2) * POWER(SIN(60) - 12, 2))) + ((2.7 * POWER(10, 3)) / (POWER(λ, 2) * W))
+WHERE X = 6 AND λ = 0.000000004 AND W = 10.28;
+
+
+UPDATE calculations
+SET F_X = (POWER(X, 2) + 1) / X + 3
+WHERE X = 2;
+
+INSERT INTO calculations (X, λ, W) VALUES (2, 0.000000001, 6.28);
+INSERT INTO calculations (X, λ, W) VALUES (4, 0.000000002, 8.28);
+INSERT INTO calculations (X, λ, W) VALUES (6, 0.000000004, 10.28);
+
+CREATE TABLE calculations (
+    X INT,
+	λ FLOAT,
+	W FLOAT,
+    F_X FLOAT,
+    Y FLOAT
+);
