@@ -1,0 +1,9 @@
+
+
+6.SELECT LEFT("m", 5) AS "first_5_sim" FROM "Table";
+
+7. SELECT LENGTH("m") AS char_count FROM "Table";
+
+8.SELECT array_to_string (array_agg(substring(a from 1 for 1)||UPPER(substring(a from 2))), ' ')
+FROM
+(SELECT UNNEST(string_to_array(LOWER('ИВаноВ ИваН ИВАновИч'), ' '))as a) t
