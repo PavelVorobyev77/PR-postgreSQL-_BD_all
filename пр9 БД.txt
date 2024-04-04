@@ -1,0 +1,210 @@
+-- Таблица исполнителей работ
+CREATE TABLE performers_of_works (
+    id_performer SERIAL PRIMARY KEY,
+    name VARCHAR(50),
+    surname VARCHAR(50),
+    contact_inform VARCHAR(50),
+    hourly_rate money -- Добавлено поле для ставки за час работы
+);
+
+-- Таблица выполненных работ
+CREATE TABLE completed_works (
+    id_works SERIAL PRIMARY KEY,
+    id_performer INT REFERENCES performers_of_works(id_performer),
+    job_description TEXT,
+    date_of_completion DATE,
+    price money, -- Изменено название поля на price
+    expenses money -- Добавлено поле для расходов
+);
+
+-- Таблица жильцов
+CREATE TABLE residents (
+    id_resident SERIAL PRIMARY KEY,
+    name VARCHAR(50),
+    surname VARCHAR(50),
+    contact_inform VARCHAR(50),
+    residence_address VARCHAR(50),
+    outstanding_balance money -- Добавлено поле для непогашенного баланса
+);
+
+-- Таблица выставленных счетов
+CREATE TABLE invoices_issued (
+    id_invoices SERIAL PRIMARY KEY,
+    id_resident INT REFERENCES residents(id_resident),
+    amount_pay money,
+    date_of_issue DATE,
+    payment_status BOOLEAN DEFAULT FALSE -- Добавлено поле для статуса оплаты
+);
+
+-- Таблица выполненных платежей
+CREATE TABLE completed_payments (
+    id_pay SERIAL PRIMARY KEY,
+    id_invoice INT REFERENCES invoices_issued(id_invoices),
+    amount_pay money,
+    date_pay DATE
+);
+
+-- Создание таблицы ролей
+CREATE TABLE roles (
+    id_role SERIAL PRIMARY KEY,
+    name VARCHAR(50) UNIQUE
+);
+
+-- Создание таблицы пользователей
+CREATE TABLE users (
+    id_user SERIAL PRIMARY KEY,
+    id_role INT REFERENCES roles(id_role),
+    login VARCHAR(50) UNIQUE,
+    pswd VARCHAR(50)
+);
+
+-- Создание таблицы операций
+CREATE TABLE operation_log (
+    id_log SERIAL PRIMARY KEY,
+    date_operation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    id_user INT REFERENCES users(id_user),
+    description_of_operation TEXT
+);
+
+
+
+-- Заполнение таблицы исполнителей работ
+INSERT INTO performers_of_works (name, surname, contact_inform, hourly_rate) VALUES
+    ('Иван', 'Иванов', 'ivanov@gmail.com', 25.00),
+    ('Петр', 'Петров', 'petrov@gmail.com', 30.00),
+    ('Сергей', 'Ядыкин', 'yadikin@gmail.com', 27.50),
+    ('Данил', 'Васильев', 'vasil@gmail.com', 28.00),
+    ('Елена', 'Смирнова', 'smirnova@gmail.com', 26.50);
+
+-- Заполнение таблицы выполненных работ
+INSERT INTO completed_works (id_performer, job_description, date_of_completion, price, expenses) VALUES
+    (1, 'Укладка ламината', '2023-05-15', 5000, 1500),
+    (2, 'Монтаж окон', '2023-06-20', 8000, 2000),
+    (3, 'Покраска стен', '2023-07-10', 3500, 1000),
+    (4, 'Монтаж полотенцесушителя', '2023-08-05', 2000, 500),
+    (5, 'Установка светильников', '2023-09-12', 3000, 800);
+
+-- Заполнение таблицы жильцов
+INSERT INTO residents (name, surname, contact_inform, residence_address, outstanding_balance) VALUES
+    ('Алексей', 'Смирнов', 'smirnov@gmail.com', 'ул. Пушкина, д. 10, кв. 5', 1500.00),
+    ('Екатерина', 'Иванова', 'ivanova@gmail.com', 'ул. Ленина, д. 15, кв. 3', 2000.00),
+    ('Михаил', 'Петров', 'petrov@gmail.com', 'ул. Гагарина, д. 20, кв. 8', 1000.00),
+    ('Анастасия', 'Сидорова', 'sidorova@gmail.com', 'ул. Кирова, д. 25, кв. 12', 3000.00),
+    ('Ирина', 'Павлова', 'pavlova@gmail.com', 'ул. Красный Проспект, д. 30, кв. 9', 2500.00);
+
+-- Заполнение таблицы выставленных счетов
+INSERT INTO invoices_issued (id_resident, amount_pay, date_of_issue, payment_status) VALUES
+    (1, 6000, '2023-05-20', TRUE),
+    (2, 7500, '2023-06-25', FALSE),
+    (3, 4000, '2023-07-15', FALSE),
+    (4, 3000, '2023-08-10', TRUE),
+    (5, 5000, '2023-09-15', FALSE);
+
+-- Заполнение таблицы выполненных платежей
+INSERT INTO completed_payments (id_invoice, amount_pay, date_pay) VALUES
+    (1, 6000, '2023-05-25'),
+    (4, 3000, '2023-08-15'),
+    (5, 5000, '2023-09-20'),
+    (2, 7500, '2023-06-30'),
+    (1, 2000, '2023-06-20');
+
+-- Заполнение таблицы ролей
+INSERT INTO roles (name) VALUES
+    ('оператор БД'),
+    ('пользователь БД'),
+    ('аналитик'),
+    ('администратор БД');
+
+-- Заполнение таблицы пользователей
+INSERT INTO users (id_role, login, pswd) VALUES
+    (1, 'admin', 'adminpassword'),
+    (2, 'user1', 'user1password'),
+    (3, 'analyst', 'analystpassword'),
+    (4, 'operator', 'operpassword'),
+    (2, 'user2', 'user2password');
+
+-- Заполнение таблицы операций
+INSERT INTO operation_log (id_user, description_of_operation) VALUES
+    (1, 'Добавлен новый пользователь'),
+    (2, 'Изменена информация о заказе'),
+    (3, 'Удален выполненный заказ'),
+    (1, 'Выполнен выход из системы'),
+    (4, 'Добавлен новый сотрудник');
+
+
+
+Функции
+1. Добавление нового исполнителя работы:
+CREATE OR REPLACE FUNCTION add_performer(
+    performer_name VARCHAR(50),
+    performer_surname VARCHAR(50),
+    performer_contact VARCHAR(50),
+    performer_hourly_rate MONEY
+) RETURNS VOID AS $$
+BEGIN
+    INSERT INTO performers_of_works (name, surname, contact_inform, hourly_rate)
+    VALUES (performer_name, performer_surname, performer_contact, performer_hourly_rate);
+END;
+$$ LANGUAGE plpgsql;
+Запрос для проверки: SELECT add_performer('Павел', 'Сергеев', 'sergeyeev@gmail.com', 3000::money);
+
+
+2. Добавление выполненной работы:
+CREATE OR REPLACE FUNCTION add_completed_work(
+    performer_id INT,
+    description TEXT,
+    completion_date DATE,
+    work_price MONEY,
+    work_expenses MONEY
+) RETURNS VOID AS $$
+BEGIN
+    INSERT INTO completed_works (id_performer, job_description, date_of_completion, price, expenses)
+    VALUES (performer_id, description, completion_date, work_price, work_expenses);
+END;
+$$ LANGUAGE plpgsql;
+Запрос для проверки: SELECT add_completed_work(1, Шпаклевка стен', '2023-05-15', 5000.00::money, 1500.00::money);
+
+
+3. Добавление нового жильца:
+CREATE OR REPLACE FUNCTION add_resident(
+    resident_name VARCHAR(50),
+    resident_surname VARCHAR(50),
+    resident_contact VARCHAR(50),
+    resident_address VARCHAR(50),
+    resident_balance MONEY
+) RETURNS VOID AS $$
+BEGIN
+    INSERT INTO residents (name, surname, contact_inform, residence_address, outstanding_balance)
+    VALUES (resident_name, resident_surname, resident_contact, resident_address, resident_balance);
+END;
+$$ LANGUAGE plpgsql;
+Запрос для проверки: SELECT add_resident('Иван', 'Павлов', 'pavlov@gmail.com', 'ул. Есенина, д. 10, кв. 5', 2500.00::money);
+
+4. Выставление счета жильцу:
+CREATE OR REPLACE FUNCTION issue_invoice(
+    id_resident INT,
+    invoice_amount MONEY,
+    issue_date DATE,
+	payment_status BOOLEAN
+) RETURNS VOID AS $$
+BEGIN
+    INSERT INTO invoices_issued (id_resident, amount_pay, date_of_issue, payment_status)
+    VALUES (id_resident, invoice_amount, issue_date, payment_status);
+END;
+$$ LANGUAGE plpgsql;
+Запрос для проверки: SELECT issue_invoice(4, 4000.00::money, '2023-08-20', 'true');
+
+5. Добавление выполненного платежа:
+CREATE OR REPLACE FUNCTION add_payment(
+    id_invoice INT,
+    payment_amount MONEY,
+    payment_date DATE
+) RETURNS VOID AS $$
+BEGIN
+    INSERT INTO completed_payments (id_invoice, amount_pay, date_pay)
+    VALUES (id_invoice, payment_amount, payment_date);
+END;
+$$ LANGUAGE plpgsql;
+Запрос для проверки: SELECT add_payment(5, 4500.00::money, '2023-09-25');
+
+
